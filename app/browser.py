@@ -29,6 +29,7 @@ class Browser():
 
         #Xpath changes if the number of tv shows is greater than the movie, hence the bug😑 //*[@id="main"]/section/div/div/div[2]/section/div[1]
         # I think @class = 'search_results movie' dosnt exist for skhgfkjs, hence the error?
+        #//*[@id="main"]/section/div/div/div[2]/section/div[1]/div/p:There are no movies that matched your query.
         count = self.sel.get_element_count('//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div')
         if count == 0:
             count = 0
@@ -45,7 +46,7 @@ class Browser():
                     movie_name = self.sel.get_text(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[{i}]/div/div[2]/div[1]/div/div/a/h2')
                     release_date = self.sel.get_text(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[{i}]//span[@class="release_date"]')
                     formatted_release_date = datetime.strptime(release_date, "%B %d, %Y").date()
-                    print(movie_name, formatted_release_date)
+                    # print(movie_name, formatted_release_date)
                     movie_dict[i] = (movie_name, formatted_release_date)
                     # if movie_name == movie and release_date is not None:
                 except:
@@ -63,6 +64,7 @@ class Browser():
             latest_index = first_key
             if count == 1:
                 self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[1]/div/div[2]/div[1]/div/div/a[@data-media-type="movie"]')
+                pass
             else:
                 for index, (movie_name, release_date) in movie_dict.items():
                     if movie_name == movie:
@@ -72,8 +74,8 @@ class Browser():
                             latest_date = release_date
                             latest_index = index
                             latest_movie = movie_name
-            print(f"Latest index and date for {latest_movie} is: {latest_index} and {latest_date}")
-            self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[{latest_index}]/div/div[2]/div[1]/div/div/a[@data-media-type="movie"]')
+                # print(f"Latest index and date for {latest_movie} is: {latest_index} and {latest_date}")
+                self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[{latest_index}]/div/div[2]/div[1]/div/div/a[@data-media-type="movie"]')
 
 
     def close_browser(self) -> None:
