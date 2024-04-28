@@ -117,9 +117,10 @@ class Browser():
 
 
     def get_reviews(self, count)->list:
+        self.reviews=[]
         limit = 5
         if count == 0:
-            self.reviews = [None] * 5
+            self.reviews = [None]*5
             return self.reviews
         else:
             if not self.sel.does_page_contain('//*[@id="media_v4"]/div/div/div[1]/div/section[3]/div/h3'):
@@ -132,10 +133,12 @@ class Browser():
                     for i in range (0, 5):
                         if self.sel.does_page_contain_element(f'//*[@id="media_v4"]/div/div/div[2]/div/section/div[@class="review_container"]/div[{i+1}]'):
                             self.reviews.append(self.sel.get_text(f'//*[@id="media_v4"]/div/div/div[2]/div/section/div[@class="review_container"]/div[{i+1}]/div/div/div[@class="teaser"]'))
+                        else:
+                            self.reviews.append(None)
                 else:
-                    self.reviews = [None] * 5
-            while(len(self.reviews)) < 5 :
-                self.reviews.append(None)
+                    self.reviews = [None]*5
+            # while(len(self.reviews)) < 5 :
+            #     self.reviews.append(None)
             return self.reviews
 
     def close_browser(self) -> None:
