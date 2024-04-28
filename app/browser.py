@@ -39,7 +39,7 @@ class Browser():
             # storyline = None
             # reviews = None
             print(f"\nThe number of elements in {movie} page is {count}")
-            self.init_scraping()
+            result = self.init_scraping(movie, count)
         else:
             count = count - 1
             print(f"\nThe number of elements in {movie} page is {count}")
@@ -60,7 +60,7 @@ class Browser():
                     # print("Locator error!")
                     movie_name = movie_name
                     formatted_release_date = None
-                    movie_dict[i] = (movie_name, formatted_release_date)
+                    movie_dict[i] = (movie, formatted_release_date)
                 else:
                     # print("Locators found match!")
                     pass
@@ -71,7 +71,7 @@ class Browser():
             latest_index = first_key
             if count == 1:
                 self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[1]/div/div[2]/div[1]/div/div/a[@data-media-type="movie"]')
-                self.init_scraping()
+                result = self.init_scraping(movie, count)
             else:
                 for index, (movie_name, release_date) in movie_dict.items():
                     if movie_name == movie:
@@ -83,9 +83,10 @@ class Browser():
                             latest_movie = movie_name
                 # print(f"Latest index and date for {latest_movie} is: {latest_index} and {latest_date}")
                 self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[{latest_index}]/div/div[2]/div[1]/div/div/a[@data-media-type="movie"]')
-                self.init_scraping()
+                result = self.init_scraping(movie, count)
+        return result
     
-    def init_scraping(self):
+    def init_scraping(self, movie_name, count):
         if self.sel.does_page_contain_element('//*[@id="consensus_pill"]'):
             score = self.sel.get_element_attribute('//*[@id="consensus_pill"]/div/div[1]/div/div/div/span', "class")
             audience_score = score[-2:]
@@ -102,8 +103,44 @@ class Browser():
         else:
             genre = None
         print("The genre of the movie is: ", genre)
+        if self.sel.does_page_contain_element('//*[@id="original_header"]/div[2]/section/div[@class="header_info"]'):
+            storyline = self.sel.get_text('//*[@id="original_header"]/div[2]/section/div[@class="header_info"]/div/p')
+        else:
+            storyline = None
+        print("The storyline of the movie is: ", storyline)
+        reviews = self.get_reviews(count)
+        print("The reviews for the movie are: ", reviews)
+
+        return (movie_name, audience_score, storyline, rating, genre, reviews)
 
 
+    def get_reviews(self, count)->list:
+        reviews = []
+        limit = 5
+        if count == 0:
+            reviews = [None] * 5
+            return reviews
+        elif not self.sel.does_page_contain('//*[@id="media_v4"]/div/div/div[1]/div/section[3]/div/h3'):
+            self.sel.scroll_element_into_view('//*[@id="media_v4"]/div/div/div[1]/div/section[3]/div/h3')
+            if self.sel.does_page_contain_element('//*[@id="media_v4"]/div/div/div[1]/div/section[2]/section/div[2]/div/div/div/div/p/a'):
+                time.sleep(3)
+                self.sel.click_element_when_clickable('//*[@id="media_v4"]/div/div/div[1]/div/section[2]/section/div[2]/div/div/div/div/p/a')
+                number_of_reviews = self.sel.get_element_count('//*[@id="media_v4"]/div/div/div[2]/div/section/div[1]/div')
+                print("The number of reviews is:", number_of_reviews)
+                for i in range (1, number_of_reviews+1):
+                    if self.sel.does_page_contain_element(f'//*[@id="media_v4"]/div/div/div[2]/div/section/div[@class="review_container"]/div[{i}]'):
+                        reviews.append(self.sel.get_text(f'//*[@id="media_v4"]/div/div/div[2]/div/section/div[@class="review_container"]/div[{i}]/div/div/div[@class="teaser"]'))
+                        if i <= limit:
+                            continue
+                        else:
+                            break
+            else:
+                reviews = [None] * 5
+        else:
+            reviews = [None] * 5
+        while(len(reviews)) < 5 :
+            reviews.append(None)
+        return reviews
 
     def close_browser(self) -> None:
         self.sel.close_browser()
