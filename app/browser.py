@@ -27,8 +27,9 @@ class Browser():
         self.sel.go_to(self.url+ f"search/movie?query={movie}")
         time.sleep(5)
 
-        #Xpath changes if the number of tv shows is greater than the movie, hence the bug😑
-        count = self.sel.get_element_count('//*[@id="main"]/section/div[@class="search_results_movie"]/div/div[2]/section/div[1]/div/div')
+        #Xpath changes if the number of tv shows is greater than the movie, hence the bug😑 //*[@id="main"]/section/div/div/div[2]/section/div[1]
+        # I think @class = 'search_results movie' dosnt exist for skhgfkjs, hence the error?
+        count = self.sel.get_element_count('//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div')
         if count == 0:
             count = 0
         else:
@@ -41,8 +42,8 @@ class Browser():
         if count > 0:
             for i in range(1, count+1):
                 try:
-                    movie_name = self.sel.get_text(f'//*[@id="main"]/section/div/div/div[2]/section/div[1]/div/div[{i}]/div/div[2]/div[1]/div/div/a/h2')
-                    release_date = self.sel.get_text(f'//*[@id="main"]/section/div/div/div[2]/section/div[1]/div/div[{i}]//span[@class="release_date"]')
+                    movie_name = self.sel.get_text(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[{i}]/div/div[2]/div[1]/div/div/a/h2')
+                    release_date = self.sel.get_text(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[{i}]//span[@class="release_date"]')
                     formatted_release_date = datetime.strptime(release_date, "%B %d, %Y").date()
                     print(movie_name, formatted_release_date)
                     movie_dict[i] = (movie_name, formatted_release_date)
@@ -61,7 +62,7 @@ class Browser():
             latest_movie, latest_date = movie_dict[first_key]
             latest_index = first_key
             if count == 1:
-                self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[1]/div/div[1]/div/div[2]/div[1]/div/div/a[@data-media-type]')
+                self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[1]/div/div[2]/div[1]/div/div/a[@data-media-type="movie"]')
             else:
                 for index, (movie_name, release_date) in movie_dict.items():
                     if movie_name == movie:
@@ -72,7 +73,7 @@ class Browser():
                             latest_index = index
                             latest_movie = movie_name
             print(f"Latest index and date for {latest_movie} is: {latest_index} and {latest_date}")
-            self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[1]/div/div[{latest_index}]/div/div[2]/div[1]/div/div/a[@data-media-type="movie"]')
+            self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[{latest_index}]/div/div[2]/div[1]/div/div/a[@data-media-type="movie"]')
 
 
     def close_browser(self) -> None:
