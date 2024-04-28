@@ -16,7 +16,7 @@ class Process:
     def run_process(self):
         for movie in self.movie_list:
             self.browser.search(movie)
-            # self.browser.close_browser()
+        # self.browser.search('Jumanji')
     
     def after_run_process(self):
         self.browser.close_browser()
