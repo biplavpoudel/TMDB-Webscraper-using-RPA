@@ -25,7 +25,7 @@ class Browser():
         
     def search(self, movie) -> None:
         self.sel.go_to(self.url+ f"search/movie?query={movie}")
-        time.sleep(5)
+        # time.sleep(5)
 
         #Xpath changes if the number of tv shows is greater than the movie, hence the bug😑 //*[@id="main"]/section/div/div/div[2]/section/div[1]
         # I think @class = 'search_results movie' dosnt exist for skhgfkjs, hence the error?
@@ -33,9 +33,16 @@ class Browser():
         count = self.sel.get_element_count('//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div')
         if count == 0:
             count = 0
+            # rating = None
+            # genre = None
+            # audience_score = None
+            # storyline = None
+            # reviews = None
+            print(f"\nThe number of elements in {movie} page is {count}")
+            self.init_scraping()
         else:
             count = count - 1
-        print(f"\nThe number of elements in {movie} page is {count}")
+            print(f"\nThe number of elements in {movie} page is {count}")
         #count counts extra nav-page div element
 
         #Now comes the comparision part
@@ -64,7 +71,7 @@ class Browser():
             latest_index = first_key
             if count == 1:
                 self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[1]/div/div[2]/div[1]/div/div/a[@data-media-type="movie"]')
-                pass
+                self.init_scraping()
             else:
                 for index, (movie_name, release_date) in movie_dict.items():
                     if movie_name == movie:
@@ -76,6 +83,26 @@ class Browser():
                             latest_movie = movie_name
                 # print(f"Latest index and date for {latest_movie} is: {latest_index} and {latest_date}")
                 self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[{latest_index}]/div/div[2]/div[1]/div/div/a[@data-media-type="movie"]')
+                self.init_scraping()
+    
+    def init_scraping(self):
+        if self.sel.does_page_contain_element('//*[@id="consensus_pill"]'):
+            score = self.sel.get_element_attribute('//*[@id="consensus_pill"]/div/div[1]/div/div/div/span', "class")
+            audience_score = score[-2:]
+        else:
+            audience_score = None
+        print("The user score is:", audience_score)
+        if self.sel.does_page_contain_element('//*[@id="original_header"]/div[2]/section/div[1]/div/span[@class="certification"]'):
+            rating = self.sel.get_text('//*[@id="original_header"]/div[2]/section/div[1]/div/span[@class="certification"]')
+        else:
+            rating = None
+        print("The rating for the movie is: ", rating)
+        if self.sel.does_page_contain_element('//*[@id="original_header"]/div[2]/section/div[1]/div/span[@class="genres"]'):
+            genre = self.sel.get_text('//*[@id="original_header"]/div[2]/section/div[1]/div/span[@class="genres"]')
+        else:
+            genre = None
+        print("The genre of the movie is: ", genre)
+
 
 
     def close_browser(self) -> None:
