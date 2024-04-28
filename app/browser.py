@@ -21,6 +21,7 @@ class Browser():
             self.sel.driver.quit()
         else:
             print("Browser successfully opened!")
+        self.reviews = []
 
         
     def search(self, movie) -> None:
@@ -38,11 +39,11 @@ class Browser():
             # audience_score = None
             # storyline = None
             # reviews = None
-            print(f"\nThe number of elements in {movie} page is {count}")
+            # print(f"\nThe number of elements in {movie} page is {count}")
             result = self.init_scraping(movie, count)
         else:
             count = count - 1
-            print(f"\nThe number of elements in {movie} page is {count}")
+            # print(f"\nThe number of elements in {movie} page is {count}")
         #count counts extra nav-page div element
 
         #Now comes the comparision part
@@ -84,6 +85,7 @@ class Browser():
                 # print(f"Latest index and date for {latest_movie} is: {latest_index} and {latest_date}")
                 self.sel.click_link(f'//*[@id="main"]/section/div/div/div[2]/section/div[@class="search_results movie "]/div/div[{latest_index}]/div/div[2]/div[1]/div/div/a[@data-media-type="movie"]')
                 result = self.init_scraping(movie, count)
+        print("RESULTS: ", result)
         return result
     
     def init_scraping(self, movie_name, count):
@@ -91,56 +93,50 @@ class Browser():
             score = self.sel.get_element_attribute('//*[@id="consensus_pill"]/div/div[1]/div/div/div/span', "class")
             audience_score = score[-2:]
         else:
-            audience_score = None
-        print("The user score is:", audience_score)
+            audience_score = "N/A"
+        # print("The user score is:", audience_score)
         if self.sel.does_page_contain_element('//*[@id="original_header"]/div[2]/section/div[1]/div/span[@class="certification"]'):
             rating = self.sel.get_text('//*[@id="original_header"]/div[2]/section/div[1]/div/span[@class="certification"]')
         else:
-            rating = None
-        print("The rating for the movie is: ", rating)
+            rating = "N/A"
+        # print("The rating for the movie is: ", rating)
         if self.sel.does_page_contain_element('//*[@id="original_header"]/div[2]/section/div[1]/div/span[@class="genres"]'):
             genre = self.sel.get_text('//*[@id="original_header"]/div[2]/section/div[1]/div/span[@class="genres"]')
         else:
-            genre = None
-        print("The genre of the movie is: ", genre)
+            genre = "N/A"
+        # print("The genre of the movie is: ", genre)
         if self.sel.does_page_contain_element('//*[@id="original_header"]/div[2]/section/div[@class="header_info"]'):
             storyline = self.sel.get_text('//*[@id="original_header"]/div[2]/section/div[@class="header_info"]/div/p')
         else:
-            storyline = None
-        print("The storyline of the movie is: ", storyline)
-        reviews = self.get_reviews(count)
-        print("The reviews for the movie are: ", reviews)
+            storyline = "N/A"
+        # print("The storyline of the movie is: ", storyline)
+        self.reviews = self.get_reviews(count)
+        print("The reviews for the movie are: ", self.reviews)
 
-        return (movie_name, audience_score, storyline, rating, genre, reviews)
+        return [movie_name, audience_score, storyline, rating, genre, self.reviews[0], self.reviews[1], self.reviews[2], self.reviews[3], self.reviews[4]]
 
 
     def get_reviews(self, count)->list:
-        reviews = []
         limit = 5
         if count == 0:
-            reviews = [None] * 5
-            return reviews
-        elif not self.sel.does_page_contain('//*[@id="media_v4"]/div/div/div[1]/div/section[3]/div/h3'):
-            self.sel.scroll_element_into_view('//*[@id="media_v4"]/div/div/div[1]/div/section[3]/div/h3')
-            if self.sel.does_page_contain_element('//*[@id="media_v4"]/div/div/div[1]/div/section[2]/section/div[2]/div/div/div/div/p/a'):
-                time.sleep(3)
-                self.sel.click_element_when_clickable('//*[@id="media_v4"]/div/div/div[1]/div/section[2]/section/div[2]/div/div/div/div/p/a')
-                number_of_reviews = self.sel.get_element_count('//*[@id="media_v4"]/div/div/div[2]/div/section/div[1]/div')
-                print("The number of reviews is:", number_of_reviews)
-                for i in range (1, number_of_reviews+1):
-                    if self.sel.does_page_contain_element(f'//*[@id="media_v4"]/div/div/div[2]/div/section/div[@class="review_container"]/div[{i}]'):
-                        reviews.append(self.sel.get_text(f'//*[@id="media_v4"]/div/div/div[2]/div/section/div[@class="review_container"]/div[{i}]/div/div/div[@class="teaser"]'))
-                        if i <= limit:
-                            continue
-                        else:
-                            break
-            else:
-                reviews = [None] * 5
+            self.reviews = [None] * 5
+            return self.reviews
         else:
-            reviews = [None] * 5
-        while(len(reviews)) < 5 :
-            reviews.append(None)
-        return reviews
+            if not self.sel.does_page_contain('//*[@id="media_v4"]/div/div/div[1]/div/section[3]/div/h3'):
+                self.sel.scroll_element_into_view('//*[@id="media_v4"]/div/div/div[1]/div/section[3]/div/h3')
+                if self.sel.does_page_contain_element('//*[@id="media_v4"]/div/div/div[1]/div/section[2]/section/div[2]/div/div/div/div/p/a'):
+                    time.sleep(3)
+                    self.sel.click_element_when_clickable('//*[@id="media_v4"]/div/div/div[1]/div/section[2]/section/div[2]/div/div/div/div/p/a')
+                    number_of_reviews = self.sel.get_element_count('//*[@id="media_v4"]/div/div/div[2]/div/section/div[1]/div')
+                    print("The number of reviews is:", number_of_reviews)
+                    for i in range (0, 5):
+                        if self.sel.does_page_contain_element(f'//*[@id="media_v4"]/div/div/div[2]/div/section/div[@class="review_container"]/div[{i+1}]'):
+                            self.reviews.append(self.sel.get_text(f'//*[@id="media_v4"]/div/div/div[2]/div/section/div[@class="review_container"]/div[{i+1}]/div/div/div[@class="teaser"]'))
+                else:
+                    self.reviews = [None] * 5
+            while(len(self.reviews)) < 5 :
+                self.reviews.append(None)
+            return self.reviews
 
     def close_browser(self) -> None:
         self.sel.close_browser()
