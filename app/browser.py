@@ -4,7 +4,6 @@ import sys
 sys.stdout.reconfigure(encoding='utf-8') #to support encoding of non-latin characters
 from datetime import datetime
 import time
-
 # sel = Selenium()
 
 class Browser():
@@ -22,6 +21,7 @@ class Browser():
         else:
             print("Browser successfully opened!")
         self.reviews = []
+        self.status = ""
 
         
     def search(self, movie) -> None:
@@ -110,18 +110,20 @@ class Browser():
         else:
             storyline = "N/A"
         # print("The storyline of the movie is: ", storyline)
-        self.reviews = self.get_reviews(count)
+        self.reviews, self.status = self.get_reviews(count)
         print("The reviews for the movie are: ", self.reviews)
 
-        return [movie_name, audience_score, storyline, rating, genre, self.reviews[0], self.reviews[1], self.reviews[2], self.reviews[3], self.reviews[4]]
+        return [movie_name, audience_score, storyline, rating, genre, self.reviews[0], self.reviews[1], self.reviews[2], self.reviews[3], self.reviews[4], self.status]
 
 
     def get_reviews(self, count)->list:
         self.reviews=[]
         limit = 5
+        self.status = ""
         if count == 0:
             self.reviews = [None]*5
-            return self.reviews
+            self.status = "No match found"
+            return (self.reviews, self.status)
         else:
             if not self.sel.does_page_contain('//*[@id="media_v4"]/div/div/div[1]/div/section[3]/div/h3'):
                 self.sel.scroll_element_into_view('//*[@id="media_v4"]/div/div/div[1]/div/section[3]/div/h3')
@@ -130,7 +132,7 @@ class Browser():
                     self.sel.click_element_when_clickable('//*[@id="media_v4"]/div/div/div[1]/div/section[2]/section/div[2]/div/div/div/div/p/a')
                     number_of_reviews = self.sel.get_element_count('//*[@id="media_v4"]/div/div/div[2]/div/section/div[1]/div')
                     print("The number of reviews is:", number_of_reviews)
-                    for i in range (0, 5):
+                    for i in range (0, limit):
                         if self.sel.does_page_contain_element(f'//*[@id="media_v4"]/div/div/div[2]/div/section/div[@class="review_container"]/div[{i+1}]'):
                             self.reviews.append(self.sel.get_text(f'//*[@id="media_v4"]/div/div/div[2]/div/section/div[@class="review_container"]/div[{i+1}]/div/div/div[@class="teaser"]'))
                         else:
@@ -139,7 +141,8 @@ class Browser():
                     self.reviews = [None]*5
             # while(len(self.reviews)) < 5 :
             #     self.reviews.append(None)
-            return self.reviews
+            self.status = "Match found"
+            return (self.reviews, self.status)
 
     def close_browser(self) -> None:
         self.sel.close_browser()
