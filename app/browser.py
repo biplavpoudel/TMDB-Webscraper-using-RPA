@@ -134,8 +134,8 @@ class Browser():
                     number_of_reviews = self.sel.get_element_count(count_of_reviews + 'div[1]/div')
                     print("The number of reviews is:", number_of_reviews)
                     for i in range (0, limit):
-                        if self.sel.does_page_contain_element(single_movie_link+ f'/div[{i+1}]'):
-                            self.reviews.append(self.sel.get_text(single_movie_link+ f'div[{i+1}]/div/div/div[@class="teaser"]'))
+                        if self.sel.does_page_contain_element(count_of_reviews+ f'//div[{i+1}]'):
+                            self.reviews.append(self.sel.get_text(count_of_reviews+ f'//div[{i+1}]/div/div/div[@class="teaser"]'))
                         else:
                             self.reviews.append(None)
                 else:
