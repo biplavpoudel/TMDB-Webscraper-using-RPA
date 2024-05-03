@@ -2,10 +2,10 @@ browser_lib = [r"https://www.themoviedb.org/",False, True]
 path = r"D://tmdb_webscraper/files/movies.xlsx"
 
 movie_card_path = '//*[@id="main"]//div[@class="search_results movie "]/div/'
-second_part_path = 'div/div[2]/div[1]/div/div/a/'
+second_part_path = '/div[@class="title"]/div/a/'
 
 single_movie_link = movie_card_path + '/a[@data-media-type="movie"]'
-full_remaining_movie_link = 'div/div[2]/div[1]/div/div/a[@data-media-type="movie"]'
+full_remaining_movie_link = '/div[@class="title"]/div/a'
 
 certification_link = '//*[@class="certification"]'
 genre_link = '//*[@class="genres"]'
