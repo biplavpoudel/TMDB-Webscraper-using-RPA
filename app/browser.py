@@ -18,7 +18,7 @@ class Browser():
             self.sel.open_available_browser(url = self.url, headless=self.headless, maximized = self.maximize, options = options)
         except Exception as e:
             print(f"Error captured as: {str(e)}")
-            self.sel.driver.quit()
+            raise e
         else:
             print("Browser successfully opened!")
         self.reviews = []
@@ -91,7 +91,7 @@ class Browser():
     
     def init_scraping(self, movie_name, count):
         if self.sel.does_page_contain_element('//*[@id="consensus_pill"]'):
-            score = self.sel.get_element_attribute('//*[@id="consensus_pill"]/div/div[1]/div/div/div/span', "class")
+            score = self.sel.get_element_attribute('//*[@id="consensus_pill"]//span', "class")
             audience_score = score[-2:]
         else:
             audience_score = "N/A"
@@ -112,7 +112,8 @@ class Browser():
             storyline = "N/A"
         # print("The storyline of the movie is: ", storyline)
         self.reviews, self.status = self.get_reviews(count)
-        print("The reviews for the movie are: ", self.reviews)
+        print("The name of the movie is: ", movie_name)
+        print("\nThe reviews for the movie are: ", self.reviews)
 
         return [movie_name, audience_score, storyline, rating, genre, self.reviews[0], self.reviews[1], self.reviews[2], self.reviews[3], self.reviews[4], self.status]
 
@@ -126,20 +127,19 @@ class Browser():
             self.status = "No match found"
             return (self.reviews, self.status)
         else:
-            if not self.sel.does_page_contain(review_into_view_link):
-                self.sel.scroll_element_into_view(review_into_view_link)
-                if self.sel.does_page_contain_element(actual_review_link):
-                    time.sleep(3)
-                    self.sel.click_element_when_clickable(actual_review_link)
-                    number_of_reviews = self.sel.get_element_count(count_of_reviews + 'div[1]/div')
-                    print("The number of reviews is:", number_of_reviews)
-                    for i in range (0, limit):
-                        if self.sel.does_page_contain_element(count_of_reviews+ f'//div[{i+1}]'):
-                            self.reviews.append(self.sel.get_text(count_of_reviews+ f'//div[{i+1}]/div/div/div[@class="teaser"]'))
-                        else:
-                            self.reviews.append(None)
-                else:
-                    self.reviews = [None]*5
+            self.sel.scroll_element_into_view(review_into_view_link)
+            if self.sel.does_page_contain_element(actual_review_link):
+                # time.sleep(5)
+                self.sel.click_element_when_clickable(actual_review_link)
+                number_of_reviews = self.sel.get_element_count(count_of_reviews + '/div[1]/div')
+                print("\nThe number of reviews is:", number_of_reviews)
+                for i in range (0, limit):
+                    if self.sel.does_page_contain_element(count_of_reviews+ f'//div[{i+1}]'):
+                        self.reviews.append(self.sel.get_text(count_of_reviews+ f'//div[{i+1}]//div[@class="teaser"]'))
+                    else:
+                        self.reviews.append(None)
+            else:
+                self.reviews = [None]*5
             # while(len(self.reviews)) < 5 :
             #     self.reviews.append(None)
             self.status = "Match found"

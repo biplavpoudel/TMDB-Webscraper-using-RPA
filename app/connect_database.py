@@ -4,7 +4,7 @@ This module provides funcitonality to connect to database
 
 # import sqlite3
 from RPA.Database import Database
-import traceback
+# import traceback
 
 class DatabaseOperation:
     """Connects to a database"""
@@ -16,7 +16,7 @@ class DatabaseOperation:
                 module_name='sqlite3',
                 database='TmdbScores.db')
         except Exception as e:
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
             print(f"The database connection error is: {str(e)}")
 
 
