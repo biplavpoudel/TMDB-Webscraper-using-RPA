@@ -7,9 +7,9 @@ second_part_path = 'div/div[2]/div[1]/div/div/a/'
 single_movie_link = movie_card_path + '/a[@data-media-type="movie"]'
 full_remaining_movie_link = 'div/div[2]/div[1]/div/div/a[@data-media-type="movie"]'
 
-certification_link = '//*[@id="original_header"]/div[2]/section/div[1]/div/span[@class="certification"]'
-genre_link = '//*[@id="original_header"]/div[2]/section/div[1]/div/span[@class="genres"]'
-storyline_link = '//*[@id="original_header"]/div[2]/section/div[@class="header_info"]'
+certification_link = '//*[@class="certification"]'
+genre_link = '//*[@class="genres"]'
+storyline_link = '//*[@class="header_info"]'
 
 review_into_view_link = '//*[@id="media_v4"]/div/div/div[1]/div/section[3]/div/h3'
 actual_review_link = '//*[@id="media_v4"]/div/div/div[1]/div/section[2]/section/div[2]/div/div/div/div/p/a'
